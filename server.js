@@ -1,42 +1,48 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const colors = require('colors'); 
+const colors = require('colors');
 const path = require('path');
 
-// MODIFICATION: dotenv.config() ko bilkul TOP par move kar diya
-// Taaki environment variables sabhi imports se pehle load ho jaayein
+// Load environment variables at the top
 dotenv.config();
 
-// Ab baaki files ko import karein
-const portfolioRoutes = require('./routes/portfolioRoute'); 
-const connectDB = require('./config/db'); 
+// Import route and DB
+const portfolioRoutes = require('./routes/portfolioRoute');
+const connectDB = require('./config/db');
 
-// Database connect karein
+// Connect DB
 connectDB();
 
-//rest object
+// Initialize app
 const app = express();
 
-//middlewares
+// Middlewares
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN,   // Example: https://my-portfolio.vercel.app
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
+
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname,'./client/build' )))
+// ❌ REMOVE the client build serving (Not needed on Render)
+// app.use(express.static(path.join(__dirname, './client/build')));
+// app.get('/', function(req, res) {
+//   res.sendFile(path.join(__dirname, './client/build/index.html'));
+// });
 
-//routes
+// API routes
 app.use('/api/v1/portfolio', portfolioRoutes);
 
-app.get('/', function(req,res){
-    res.sendFile(path.join(__dirname,'./client/build/index.html' ))
+// Simple root route
+app.get('/', (req, res) => {
+  res.json({ message: "Backend is running successfully!" });
 });
-//port
+
+// Port
 const PORT = process.env.PORT || 8080;
 
-//listen
+// Start server
 app.listen(PORT, () => {
   console.log(`Server Running on PORT ${PORT}`.bgCyan.white);
 });
